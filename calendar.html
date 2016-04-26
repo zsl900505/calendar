@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		.title{
+			overflow: hidden;
+			text-align: center;
+		}
+		.previous{
+			float: left;
+		}
+		.next{
+			float: right;
+		}
+		.week{
+			overflow: hidden;
+		}
+		.holder{
+			height: 1px;
+		}
+		.day{
+			float: left;
+			width: 14.2857%;
+			border: 1px solid black;
+			box-sizing: border-box;
+		}
+		.oldDay{
+			color: lightgray;
+		}
+	</style>
+</head>
+<body>
+	<div class="title">
+		<div class="previous">previous</div>
+		<div class="next">next</div>
+		<div class="month">Month</div>
+	</div>
+	<div class="days">
+		
+	</div>
+</body>
+<script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+<script>
+	var d = new Date();
+	var day = d.getDay();
+	var date = d.getDate();
+	var month = d.getMonth();
+	//改变year默认设置
+	var year = d.getYear()+1900;
+	var montharray = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+	$(".month").html(montharray[month]);
+	//本月有几天
+	var dayindex;
+	function getdayindex(){
+		if(month==0 || month==2 || month==4 || month==6 || month==7 || month==9 || month==11){
+			dayindex = 31;
+		}else if(month==1){
+			if(year%4==0){
+				dayindex=29;
+			}else{
+				dayindex=28;
+			}
+		}else{
+			dayindex=30;
+		}
+		//天数从1开始，js计数从0开始，所以
+		dayindex--;
+	}
+	getdayindex();
+	//第一天是周几
+	var firstday = day-(date%7-1);
+	//firstday<0 ? firstday+=7 : firstday = firstday;   // if statement can also write this way
+	if(firstday<0){
+		firstday+=7;
+	}
+	//最后一天是周几
+	var lastday = day+(dayindex-date)%7+1
+	lastday>6 ? lastday-=7 : lastday = lastday;
+	//加载日历
+	function buildcalendar(){
+		$(".days").html("");
+		for(var i=0; i<=(dayindex+firstday); i){
+			$(".days").append('<div class="week"></div>');
+			for(var u=0; u<7; u++){
+				if(i-firstday+1 < 1 || i-firstday+1 > dayindex+1){
+					//$(".days .week").eq($(".days .week").length-1)  选择最后一行
+					$(".days .week").eq($(".days .week").length-1).append('<div class="day holder"></div>');
+				}else if(i-firstday+1 < date){
+					$(".days .week").eq($(".days .week").length-1).append('<div class="day oldDay">'+(i-firstday+1)+'</div>');
+				}else{
+					$(".days .week").eq($(".days .week").length-1).append('<div class="day">'+(i-firstday+1)+'</div>');
+				}
+				i++;
+			}
+		}
+	}
+	buildcalendar();
+	//下个月数据更新
+	$(".next").click(function(){
+		month++;
+		month==12 ? month=0 : month=month;
+		$(".month").html(montharray[month]);
+		firstday = lastday+1;
+		firstday>6 ? firstday-=7 : firstday = firstday;
+		getdayindex();
+		lastday = firstday+dayindex%7;
+		lastday>6 ? lastday-=7 : lastday = lastday;
+		date=1;
+		buildcalendar();
+	})
+	//上个月数据更新
+	$(".previous").click(function(){
+		month--;
+		month==-1 ? month=11 : month=month;
+		//判断月份在未来还是过去
+		if(year==(d.getYear()+1900) && month==d.getMonth()){
+			$(".month").html(montharray[month]);
+			lastday = firstday-1;
+			lastday<0 ? lastday+=7 : lastday = lastday;
+			getdayindex();
+			firstday = lastday-dayindex%7;
+			firstday<0 ? firstday+=7 : firstday = firstday;
+			date=d.getDate();
+			buildcalendar();
+		}else if(year>=d.getYear()+(1900) && month>=d.getMonth()){
+			$(".month").html(montharray[month]);
+			lastday = firstday-1;
+			lastday<0 ? lastday+=7 : lastday = lastday;
+			getdayindex();
+			firstday = lastday-dayindex%7;
+			firstday<0 ? firstday+=7 : firstday = firstday;
+			date=1;
+			buildcalendar();
+		}else{
+			month++;
+		}
+			
+	})
+		
+</script>
+</html>
